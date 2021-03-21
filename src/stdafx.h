@@ -21,6 +21,10 @@
 #include <chrono>
 #include <thread>
 
+//Additional libraries
+#include <stb_image.h>
+#include <glm.hpp>
+
 //Shorthands
 typedef unsigned char uchar;
 typedef unsigned short ushort;
@@ -29,4 +33,5 @@ typedef unsigned long ulong;
 typedef unsigned long long ulonglong;
 
 //Homemade
-#include "ShaderProgram.h"
+#include "glutils.h"
+#include "errors.h"

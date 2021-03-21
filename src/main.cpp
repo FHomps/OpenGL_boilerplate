@@ -28,16 +28,28 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-       -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f,  0.5f, 0.0f
+        //position         //colors       //texcoords
+       -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 0.f,
+        0.5f, -0.5f, 0.0f, 0.f, 1.f, 0.f, 1.f, 0.f,
+       -0.5f,  0.5f, 0.0f, 0.f, 0.f, 1.f, 0.f, 1.f,
+        0.5f,  0.5f, 0.0f, 1.f, 1.f, 1.f, 1.f, 1.f
     };
+
+    uint indices[] = {
+        0, 1, 2,
+        2, 1, 3
+    };
+
+    uint VAO;
+    glGenVertexArrays(1, &VAO);
+
+    uint texture = Texture::loadFromFile("resources/wall.jpg", false);
 
     uint VBO;
     glGenBuffers(1, &VBO);
 
-    uint VAO;
-    glGenVertexArrays(1, &VAO);
+    uint EBO;
+    glGenBuffers(1, &EBO);
 
     ShaderProgram shaderProgram("shaders/default.vert", "shaders/default.frag");
 
@@ -46,8 +58,18 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glUseProgram(shaderProgram.ID);
+    glUniform1i(glGetUniformLocation(shaderProgram.ID, "tex"), 0);
 
     FPSLimiter limiter(60);
 
@@ -60,7 +82,9 @@ int main() {
 
         glUseProgram(shaderProgram.ID);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
